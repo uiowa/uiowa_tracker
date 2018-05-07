@@ -16,11 +16,11 @@ function uiowa_tracker_views_default_views() {
   $view->description = 'Tracking data of node views by authenticated users for the University of Iowa Tracker module.';
   $view->tag = 'default';
   $view->base_table = 'uiowa_tracker_log';
-  $view->human_name = 'University of Iowa Tracker Data';
+  $view->human_name = 'Tracker Data';
   $view->core = 7;
   $view->api_version = '3.0';
   $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
-  
+
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
   $handler->display->display_options['title'] = 'UIowa Tracker Data';
@@ -163,21 +163,29 @@ function uiowa_tracker_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  
+
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page_uiowa_tracker_data');
   $handler->display->display_options['path'] = 'uiowa_tracker_data';
-  
+
   /* Display: CSV export */
   $handler = $view->new_display('views_data_export', 'CSV export', 'views_export_uiowa_tracker_data');
   $handler->display->display_options['pager']['type'] = 'none';
   $handler->display->display_options['pager']['options']['offset'] = '0';
   $handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+  $handler->display->display_options['style_options']['provide_file'] = 0;
+  $handler->display->display_options['style_options']['parent_sort'] = 0;
+  $handler->display->display_options['style_options']['quote'] = 1;
+  $handler->display->display_options['style_options']['trim'] = 1;
+  $handler->display->display_options['style_options']['replace_newlines'] = 0;
+  $handler->display->display_options['style_options']['newline_token'] = '1';
+  $handler->display->display_options['style_options']['header'] = 1;
+  $handler->display->display_options['style_options']['keep_html'] = 0;
   $handler->display->display_options['path'] = 'uiowa_tracker_data.csv';
   $handler->display->display_options['displays'] = array(
     'page_uiowa_tracker_data' => 'page_uiowa_tracker_data',
     'default' => 0,
-  );  
+  );
 
   // Add view to list of views to provide.
   $views[$view->name] = $view;

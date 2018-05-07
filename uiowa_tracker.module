@@ -35,7 +35,7 @@ function uiowa_tracker_help($path, $arg) {
       if (module_exists('markdown')) {
         $filters = module_invoke('markdown', 'filter_info');
         $info = $filters['filter_markdown'];
-    
+
         if (function_exists($info['process callback'])) {
           $output = $info['process callback']($readme, NULL);
         }
@@ -80,7 +80,7 @@ function uiowa_tracker_menu() {
     'description' => 'Configuration settings related to University of Iowa custom modules.',
     'access arguments' => array('access administration pages'),
     'position' => 'right',
-    'weight' => 50, 
+    'weight' => 50,
     'page callback' => 'system_admin_menu_block_page',
     'file' => 'system.admin.inc',
     'file path' => drupal_get_path('module', 'system'),
@@ -117,7 +117,7 @@ function uiowa_tracker_pathlist_form($form, &$form_state) {
 
   $form['uiowa_tracker_clearlog_fieldset'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Administer Database'),
+    '#title' => t('Operations'),
     '#description' => t('In order to clear all entries in the tracking log table, click the \'Clear tracking log\' button. This will remove ALL entries in the table, so use with caution.'),
     '#collapsible' => TRUE,
     '#collapsed' => TRUE,

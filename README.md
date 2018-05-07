@@ -10,7 +10,7 @@ This module allows administrators to track specified page (node) visits by authe
    - help
    - path/to/node/node
 
-3. To delete all tracking data from the database, click 'Clear tracking log' under the 'Administer Database' fieldset and click 'OK' in the confirmation window.
+3. To delete all tracking data from the database, click 'Clear tracking log' under the 'Operations' fieldset and click 'OK' in the confirmation window.
 
 ## Maintainers
 
