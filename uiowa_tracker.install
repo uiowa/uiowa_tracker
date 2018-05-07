@@ -1,125 +1,134 @@
 <?php
 
 /**
- * Implements of hook_install().
+ * @file
+ * Installation functions for the University of Iowa Tracker module.
  */
-function uiowa_tracker_install() {
-  variable_set('uiowa_tracker_pathlist',"");
-}
 
 /**
- * Implements of hook_uninstall().
+ * Implements hook_schema().
+ *
+ * Defines the database tables used by this module.
+ *
+ * @see hook_schema()
  */
-function uiowa_tracker_uninstall() {
-  variable_del('uiowa_tracker_pathlist');
-}
-
-/**
-* Implements of hook_schema().
-*/
 function uiowa_tracker_schema() {
-  $schema['uiowa_tracker_log'] = array(
-    'description' => t('Stores tracking data for specified nodes viewed by authenticated users.'),
-    'fields' => array(
-      'trackid' => array(
-        'description' => t('The primary identifier for the tracking data.'),
+  $schema['uiowa_tracker_log'] = [
+    'description' => 'Stores tracking data for specified nodes viewed by authenticated users.',
+    'fields' => [
+      'trackid' => [
+        'description' => 'The primary identifier for the tracking data.',
         'type' => 'serial',
         'not null' => TRUE,
         'unsigned' => TRUE,
-      ),
-      'nid' => array(
-        'description' => t('The {node}.nid of the viewed node.'),
+      ],
+      'nid' => [
+        'description' => 'The {node}.nid of the viewed node.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'default' => 0,
-      ),
-      'path' => array(
-        'description' => t('The internal path of the viewed node.'),
+      ],
+      'path' => [
+        'description' => 'The internal path of the viewed node.',
         'type' => 'varchar',
         'not null' => FALSE,
         'length' => '255',
-      ),
-      'pagetitle' => array(
-        'description' => t('The page title of the viewed node.'),
+      ],
+      'pagetitle' => [
+        'description' => 'The page title of the viewed node.',
         'type' => 'varchar',
         'not null' => TRUE,
         'length' => '255',
-      ),
-      'uid' => array(
-        'description' => t('The {users}.uid of the authenticated user viewing the {node} nid.'),
+      ],
+      'uid' => [
+        'description' => 'The {users}.uid of the authenticated user viewing the {node} nid.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => FALSE,
         'default' => 0,
-      ),
-      'username' => array(
-        'description' => t('The {users}.name of the authenticated user viewing the {node} nid.'),
+      ],
+      'username' => [
+        'description' => 'The {users}.name of the authenticated user viewing the {node} nid.',
         'type' => 'varchar',
         'not null' => FALSE,
         'length' => '255',
-      ),
-      'rolename' => array(
-        'description' => t('The {role}.name(s) of the authenticated user viewing the {node} nid.'),
+      ],
+      'rolename' => [
+        'description' => 'The {role}.name(s] of the authenticated user viewing the {node} nid.',
         'type' => 'varchar',
         'not null' => FALSE,
         'length' => '255',
-      ),
-      'timestamp' => array(
-        'description' => t('A Unix timestamp when the node was viewed.'),
+      ],
+      'timestamp' => [
+        'description' => 'A Unix timestamp when the node was viewed.',
         'type' => 'int',
         'not null' => TRUE,
         'unsigned' => TRUE,
         'default' => 0,
-      ),
-    ),
-    'indexes' => array(
-      'uid' => array('uid'),
-    ),
-    'primary key' => array('trackid'),
-    'foreign keys' => array(
-      'nid' => array(
+      ],
+    ],
+    'indexes' => [
+      'uid' => ['uid'],
+    ],
+    'primary key' => ['trackid'],
+    'foreign keys' => [
+      'nid' => [
         'table' => 'node',
-        'columns' => array('nid' => 'nid'),
-      ),
-      'uid' => array(
+        'columns' => ['nid' => 'nid'],
+      ],
+      'uid' => [
         'table' => 'users',
-        'columns' => array('uid' => 'uid'),
-      ),
-    ),
-  );
+        'columns' => ['uid' => 'uid'],
+      ],
+    ],
+  ];
 
-  $schema['uiowa_tracker_paths'] = array(
+  $schema['uiowa_tracker_paths'] = [
     'description' => t('Stores paths of nodes to be tracked.'),
-    'fields' => array(
-      'pathid' => array(
+    'fields' => [
+      'pathid' => [
         'description' => t('The primary identifier for the path list.'),
         'type' => 'serial',
         'not null' => TRUE,
         'unsigned' => TRUE,
-      ),
-      'nid' => array(
+      ],
+      'nid' => [
         'description' => t('The {node}.nid of the viewed node.'),
         'type' => 'int',
         'not null' => TRUE,
         'unsigned' => TRUE,
         'default' => 0,
-      ),
-      'path' => array(
+      ],
+      'path' => [
         'description' => t('The internal path of the viewed node.'),
         'type' => 'varchar',
         'not null' => TRUE,
         'length' => '255',
-      ),
-    ),
-    'primary key' => array('pathid'),
-    'foreign keys' => array(
-      'nid' => array(
+      ],
+    ],
+    'primary key' => ['pathid'],
+    'foreign keys' => [
+      'nid' => [
         'table' => 'node',
-        'columns' => array('nid' => 'nid'),
-      ),
-    ),
-  );
+        'columns' => ['nid' => 'nid'],
+      ],
+    ],
+  ];
 
   return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function uiowa_tracker_install() {
+
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function uiowa_tracker_uninstall() {
+
 }

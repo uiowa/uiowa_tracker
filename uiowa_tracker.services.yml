@@ -1,0 +1,6 @@
+services:
+  uiowa_tracker_event_subscriber:
+    class: Drupal\uiowa_tracker\EventSubscriber\UIowaTrackerRequestSubscriber
+    arguments: ['@current_route_match', '@database', '@config.factory', '@current_user', '@entity_type.manager']
+    tags:
+      - {name: event_subscriber}

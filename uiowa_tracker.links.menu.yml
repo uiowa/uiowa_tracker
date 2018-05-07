@@ -1,0 +1,12 @@
+uiowa_tracker.admin_uiowa:
+  title: 'University of Iowa'
+  description: 'Configuration settings related to University of Iowa custom modules.'
+  route_name: uiowa_tracker.admin_uiowa
+  parent: system.admin_config
+  weight: 50
+
+uiowa_tracker.admin_uiowa_tracker:
+  title: 'University of Iowa Tracker'
+  description: 'Configuration for the University of Iowa Tracker module.'
+  route_name: uiowa_tracker.admin_uiowa_tracker
+  parent: uiowa_tracker.admin_uiowa

@@ -1,0 +1,13 @@
+name: University of Iowa Tracker
+description: Custom tracking module that logs node views by authenticated users for specified nodes.
+package: UIowa
+
+type: module
+core: 8.x
+
+dependencies:
+  - drupal:views_data_export
+
+configure: uiowa_tracker.admin_uiowa_tracker
+
+version: 8.x-1.0

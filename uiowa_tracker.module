@@ -5,20 +5,15 @@
  * Custom tracking module that logs node views by authenticated users for specified nodes.
  */
 
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Entity\EntityInterface;
+
 /**
  * Implements hook_help().
  */
-function uiowa_tracker_help($path, $arg) {
-/*
-  switch ($path) {
-    case "admin/help#uiowa_tracker":
-      return '<p>' . t("Tracks views of specified nodes by authenticated users.") . '</p>';
-      break;
-  }
-*/
-  switch ($path) {
-    case 'admin/help#uiowa_tracker':
-
+function uiowa_tracker_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.uiowa_tracker':
       $filepath = dirname(__FILE__) . '/README.md';
       if (file_exists($filepath)) {
         $readme = file_get_contents($filepath);
@@ -32,10 +27,13 @@ function uiowa_tracker_help($path, $arg) {
       if (!isset($readme)) {
         return NULL;
       }
-      if (module_exists('markdown')) {
-        $filters = module_invoke('markdown', 'filter_info');
+
+      /* @var \Drupal\Core\Extension\ModuleHandler $moduleHandler*/
+      $moduleHandler = \Drupal::service('module_handler');
+      if ($moduleHandler->moduleExists('markdown')) {
+        $filters = $moduleHandler->invoke('markdown', 'filter_info');
         $info = $filters['filter_markdown'];
-    
+
         if (function_exists($info['process callback'])) {
           $output = $info['process callback']($readme, NULL);
         }
@@ -52,156 +50,14 @@ function uiowa_tracker_help($path, $arg) {
 }
 
 /**
- * Implements hook_permission().
- */
-function uiowa_tracker_permission() {
-  $perms = array();
-
-  $perms['administer uiowa tracker settings'] = array(
-    'title' => t('Administer University of Iowa Tracker'),
-    'description' => t('Configure the list of relative node paths that require tracking for the University of Iowa Tracker module.'),
-  );
-  $perms['access uiowa tracker data'] = array(
-    'title' => t('Access University of Iowa Tracker data'),
-    'description' => t('Access the tracking data of node views for the University of Iowa Tracker module.'),
-  );
-
-  return $perms;
-}
-
-/**
- * Implements hook_menu().
- */
-function uiowa_tracker_menu() {
-  $items = array();
-
-  $items['admin/config/uiowa'] = array(
-    'title' => 'University of Iowa',
-    'description' => 'Configuration settings related to University of Iowa custom modules.',
-    'access arguments' => array('access administration pages'),
-    'position' => 'right',
-    'weight' => 50, 
-    'page callback' => 'system_admin_menu_block_page',
-    'file' => 'system.admin.inc',
-    'file path' => drupal_get_path('module', 'system'),
-  );
-
-  $items['admin/config/uiowa/uiowa_tracker'] = array(
-    'title' => t('University of Iowa Tracker'),
-    'description' => t('Configuration for the University of Iowa Tracker module.'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('uiowa_tracker_pathlist_form'),
-    'access arguments' => array('administer uiowa tracker settings'),
-    'type' => MENU_NORMAL_ITEM,
-//    'file' => 'includes/uiowa_tracker.admin.inc',
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_form().
- */
-function uiowa_tracker_pathlist_form($form, &$form_state) {
-  $form['uiowa_tracker_pathlist'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Enter paths of all nodes to track authenticated user views (one per line)'),
-    '#description' => t('The relative paths (e.g. about/contact) of all nodes that require tracking of authenticated user views, one path per line. Do NOT add leading or trailing slashes.'),
-    '#required' => TRUE,
-    '#rows' => 15,
-    '#default_value' => variable_get('uiowa_tracker_pathlist'),
-  );
-
-  $form['#validate'][] = 'uiowa_tracker_pathlist_form_validate';
-  $form['#submit'][] = 'uiowa_tracker_pathlist_form_submit';
-
-  $form['uiowa_tracker_clearlog_fieldset'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Administer Database'),
-    '#description' => t('In order to clear all entries in the tracking log table, click the \'Clear tracking log\' button. This will remove ALL entries in the table, so use with caution.'),
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-
-  $form['uiowa_tracker_clearlog_fieldset']['uiowa_tracker_clearlog'] = array(
-    '#type' => 'submit',
-    '#value' => t('Clear tracking log'),
-    '#attributes' => array('onclick' => 'if(!confirm("Are you sure you want to delete all entries in the tracking log?")){return false;}'),
-    '#validate' => array('uiowa_tracker_clearlog_form_validate'),
-    '#submit' => array('uiowa_tracker_clearlog_form_submit'),
-  );
-
-  return system_settings_form($form);
-}
-
-/**
- * Implements uiowa_tracker_pathlist_form_validate().
- */
-function uiowa_tracker_pathlist_form_validate($form, &$form_state) {
-  // Clear existing entries from the uiowa_tracker_paths table.
-  $query = db_delete('uiowa_tracker_paths')->execute();
-  drupal_set_message(t('The paths table has been cleared.'));
-}
-
-/**
- * Implements uiowa_tracker_pathlist_form_submit().
- */
-function uiowa_tracker_pathlist_form_submit($form, &$form_state) {
-  $values = array(
-    'uiowa_tracker_pathlist' => $form_state['values']['uiowa_tracker_pathlist'],
-  );
-
-  $pathlist = preg_split("/\r\n|\n|\r/", $values['uiowa_tracker_pathlist']);
-
-  // Enter the node id and alias of each path in the pathlist into the uiowa_tracker_paths table.
-  $query = db_insert('uiowa_tracker_paths')->fields(array('nid','path'));
-  foreach ($pathlist as $path) {
-    $normal_path = drupal_get_normal_path($path);
-    $nid = str_ireplace("node/",'',$normal_path);
-
-    if (empty($path)) {
-      continue;
-    }
-    elseif ($normal_path == $path) {
-      // If the node does not exist, the normal_path and path will be the same value.
-      drupal_set_message(t('The path \'' . $path . '\' has been ignored because it does not exist.'), 'warning');
-      continue;
-    }
-
-    $query->values(array(
-      'nid' => $nid,
-      'path' => $path,
-    ));
-  }
-  $query->execute();
-
-  drupal_set_message(t('The path list of tracked nodes has been saved.'));
-}
-
-/**
- * Implements uiowa_tracker_clearlog_form_validate().
- */
-function uiowa_tracker_clearlog_form_validate($form, &$form_state) {
-  // Verify deletion of existing entries from the uiowa_tracker_log table.
-}
-
-/**
- * Implements uiowa_tracker_clearlog_form_submit().
- */
-function uiowa_tracker_clearlog_form_submit($form, &$form_state) {
-  // Clear existing entries from the uiowa_tracker_log table.
-  $query = db_delete('uiowa_tracker_log')->execute();
-  drupal_set_message(t('All entries in the University of Iowa tracker log have been cleared.'));
-}
-
-/**
  * Implements hook_user_cancel().
  */
 function uiowa_tracker_user_cancel($edit, $account, $method) {
   switch ($method) {
     case 'user_cancel_reassign':
-      db_update('uiowa_tracker_log')
-        ->fields(array('uid' => 0))
+      $connection = \Drupal::database();
+      $connection->update('uiowa_tracker_log')
+        ->fields(['uid' => 0])
         ->condition('uid', $account->uid)
         ->execute();
       break;
@@ -211,9 +67,10 @@ function uiowa_tracker_user_cancel($edit, $account, $method) {
 /**
  * Implements hook_user_delete().
  */
-function uiowa_tracker_user_delete($account) {
-  db_delete('uiowa_tracker_log')
-    ->condition('uid', $account->uid)
+function uiowa_tracker_user_delete(EntityInterface $user) {
+  $connection = \Drupal::database();
+  $connection->delete('uiowa_tracker_log')
+    ->condition('uid', $user->id())
     ->execute();
   drupal_set_message(t('The user has been removed from the University of Iowa tracker log.'));
 }
@@ -221,131 +78,191 @@ function uiowa_tracker_user_delete($account) {
 /**
  * Implements hook_node_delete().
  */
-function uiowa_tracker_node_delete($node) {
-  db_delete('uiowa_tracker_paths')
-    ->condition('nid', $node->nid)
-    ->execute();
-  drupal_set_message(t('The node has been removed from the University of Iowa list of tracked nodes.'));
+function uiowa_tracker_node_delete(EntityInterface $node) {
+  $connection = \Drupal::database();
 
-   db_delete('uiowa_tracker_log')
-    ->condition('nid', $node->nid)
+  uiowa_tracker_remove_path_from_tracker($node);
+
+  $connection->delete('uiowa_tracker_log')
+    ->condition('nid', $node->id())
     ->execute();
+
   drupal_set_message(t('The node has been removed from the University of Iowa tracker log.'));
 }
 
 /**
- * Implements hook_node_view().
+ * Implements hook_views_data().
  */
-function uiowa_tracker_node_view($node, $view_mode, $langcode) {
-  global $user;
-  if ($node->type == 'content-type' && $view_mode == 'full' && user_is_logged_in()) {
-    $nid = $node->nid;
-  }
-
-  if (uiowa_tracker_check_node($node->nid)) {
-    $result = uiowa_tracker_insert_node_view($node->nid, $user->uid);
-  }
+function uiowa_tracker_views_data() {
+  $data = [];
+  $data['uiowa_tracker_log']['table']['group'] = t('UIowa Tracker');
+  $data['uiowa_tracker_log']['table']['base'] = [
+    'field' => 'trackid',
+    'title' => t('University of Iowa Tracker Data'),
+    'help' => t('This table contains data about tracked node views by authenticated user.'),
+    'weight' => -10,
+  ];
+  $data['uiowa_tracker_log']['table']['join'] = [
+    'node' => [
+      'left_table' => 'node',
+      'left_field' => 'nid',
+      'field' => 'nid',
+    ],
+    'users' => [
+      'left_table' => 'users',
+      'left_field' => 'uid',
+      'field' => 'uid',
+    ],
+  ];
+  $data['uiowa_tracker_log']['trackid'] = [
+    'title' => t('Tracking id'),
+    'help' => t('Tracking id.'),
+    'field' => [
+      'id' => 'numeric',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'numeric',
+    ],
+    'sort' => [
+      'id' => 'numeric',
+    ],
+  ];
+  $data['uiowa_tracker_log']['nid'] = [
+    'title' => t('Node id'),
+    'help' => t('Node id.'),
+    'relationship' => [
+      'base' => 'node',
+      'field' => 'nid',
+      'id' => 'standard',
+      'label' => t('Node'),
+    ],
+    'field' => [
+      'id' => 'numeric',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'numeric',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+    'argument' => [
+      'id' => 'standard',
+      'numeric' => TRUE,
+    ],
+  ];
+  $data['uiowa_tracker_log']['path'] = [
+    'title' => t('Path'),
+    'help' => t('Relative path of the node.'),
+    'field' => [
+      'id' => 'standard',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'string',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+  ];
+  $data['uiowa_tracker_log']['pagetitle'] = [
+    'title' => t('Page title'),
+    'help' => t('Page title.'),
+    'field' => [
+      'id' => 'standard',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'string',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+  ];
+  $data['uiowa_tracker_log']['uid'] = [
+    'title' => t('User id'),
+    'help' => t('User id.'),
+    'relationship' => [
+      'base' => 'users',
+      'field' => 'uid',
+      'id' => 'standard',
+      'label' => t('User'),
+    ],
+    'field' => [
+      'id' => 'standard',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'numeric',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+    'argument' => [
+      'id' => 'standard',
+      'numeric' => TRUE,
+    ],
+  ];
+  $data['uiowa_tracker_log']['username'] = [
+    'title' => t('User name'),
+    'help' => t('User name.'),
+    'field' => [
+      'id' => 'standard',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'string',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+  ];
+  $data['uiowa_tracker_log']['rolename'] = [
+    'title' => t('Role name(s)'),
+    'help' => t('Role name(s).'),
+    'field' => [
+      'id' => 'standard',
+      'click sortable' => TRUE,
+    ],
+    'filter' => [
+      'id' => 'string',
+    ],
+    'sort' => [
+      'id' => 'standard',
+    ],
+  ];
+  $data['uiowa_tracker_log']['timestamp'] = [
+    'title' => t('Timestamp'),
+    'help' => t('When user viewed node.'),
+    'field' => [
+      'id' => 'date',
+      'click sortable' => FALSE,
+    ],
+    'filter' => [
+      'id' => 'date',
+    ],
+    'sort' => [
+      'id' => 'date',
+    ],
+  ];
+  return $data;
 }
 
 /**
- * Read path data from the uiowa_tracker_paths table.
+ * Remove a node from the tracked paths config.
  *
- * @return
- *   A query result containing the path IDs, node IDs and paths from the list of the tracked nodes.
- */
-function uiowa_tracker_get_pathlist(){
-/*
-  $query = db_query('uiowa_tracker_paths', 'p')
-    ->fields('p', array('pathid', 'nid', 'path'))
-    ->execute();
-  return $query;
-*/
-}
-
-/**
- * Check that the nid is found in the uiowa_tracker_paths table.
- *
- * @param int $nid
+ * @param \Drupal\Core\Entity\EntityInterface $node
  *   The viewed node.
- * @return bool
- *   TRUE if the node is found in the uiowa_tracker_paths table, otherwise FALSE.
  */
-function uiowa_tracker_check_node($nid){
-  if (is_numeric($nid)) {
-    $node = node_load($nid);
-  } else {
-    return FALSE;
+function uiowa_tracker_remove_path_from_tracker(EntityInterface $node) {
+  $trackerConfig = \Drupal::configFactory()->getEditable('uiowa_tracker.settings');
+  $trackerPaths = explode("\r\n", $trackerConfig->get('uiowa_tracker_pathlist'));
+  $path = $node->toUrl()->toString();
+  $index = array_search($path, $trackerPaths);
+  if ($index !== FALSE) {
+    unset($trackerPaths[$index]);
   }
-
-  $query = db_select('uiowa_tracker_paths', 'p')
-    ->fields('p', array('pathid', 'nid', 'path'))
-    ->condition('nid', $node->nid,'=')
-    ->execute();
-
-  if ($query->rowCount() > 0){
-    return TRUE;
-  } else {
-    return FALSE;
-  }
-}
-
-/**
- * Insert node view into uiowa_tracker_log table.
- *
- * @param int $nid
- *   The viewed node.
- * @param int $uid
- *   The user who viewed the node.
- * @return bool
- *   TRUE if the node view was successfully added to the uiowa_tracker_log table, otherwise FALSE.
- */
-function uiowa_tracker_insert_node_view($nid, $uid) {
-  if (is_numeric($nid)) {
-    $node = node_load($nid);
-  } else {
-    return FALSE;
-  }
-  if (is_numeric($uid)) {
-    $user = user_load($uid);
-  } else {
-    return FALSE;
-  }
-
-  $path = drupal_get_path_alias('node/' . $nid);
-  $timestamp = date('Y-m-d G:i:s');
-  $rolelist = "";
-  foreach ($user->roles as $role) {
-    if ($role != "authenticated user"){
-      $rolelist .= $role . ", ";
-    }
-  }
-  $rolelist = substr($rolelist, 0, -2);
-
-  if (user_is_logged_in()) {
-    db_insert('uiowa_tracker_log')
-      -> fields(array(
-        'nid' => $nid,
-        'path' => $path,
-        'pagetitle' => $node->title,
-        'uid' => $uid,
-        'username' => $user->name,
-        'rolename' => $rolelist,
-        'timestamp' => REQUEST_TIME,
-      ))
-      ->execute();
-
-    return TRUE;
-  } else {
-    return FALSE;
-  }
-}
-
-/**
- * Implements hook_views_api().
- */
-function uiowa_tracker_views_api() {
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'uiowa_tracker') . '/includes',
-  );
+  $trackerConfig->set('uiowa_tracker_pathlist', implode("\r\n", $trackerPaths));
+  $trackerConfig->save();
 }

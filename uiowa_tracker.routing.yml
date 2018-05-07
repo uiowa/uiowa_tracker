@@ -1,0 +1,15 @@
+uiowa_tracker.admin_uiowa:
+  path: 'admin/config/uiowa'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'University of Iowa'
+  requirements:
+    _permission: 'administer site configuration'
+
+uiowa_tracker.admin_uiowa_tracker:
+  path: 'admin/config/uiowa/uiowa_tracker'
+  defaults:
+    _form:  '\Drupal\uiowa_tracker\Form\UIowaTrackerConfigForm'
+    _title: 'University of Iowa Tracker'
+  requirements:
+    _permission: 'administer uiowa tracker settings'
