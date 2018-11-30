@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Custom tracking module that logs node views by authenticated users for specified nodes.
+ * Custom tracking module that logs nodeviews by auth users for specified nodes.
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;

@@ -85,23 +85,23 @@ function uiowa_tracker_schema() {
   ];
 
   $schema['uiowa_tracker_paths'] = [
-    'description' => t('Stores paths of nodes to be tracked.'),
+    'description' => 'Stores paths of nodes to be tracked.',
     'fields' => [
       'pathid' => [
-        'description' => t('The primary identifier for the path list.'),
+        'description' => 'The primary identifier for the path list.',
         'type' => 'serial',
         'not null' => TRUE,
         'unsigned' => TRUE,
       ],
       'nid' => [
-        'description' => t('The {node}.nid of the viewed node.'),
+        'description' => 'The {node}.nid of the viewed node.',
         'type' => 'int',
         'not null' => TRUE,
         'unsigned' => TRUE,
         'default' => 0,
       ],
       'path' => [
-        'description' => t('The internal path of the viewed node.'),
+        'description' => 'The internal path of the viewed node.',
         'type' => 'varchar',
         'not null' => TRUE,
         'length' => '255',
@@ -117,18 +117,4 @@ function uiowa_tracker_schema() {
   ];
 
   return $schema;
-}
-
-/**
- * Implements hook_install().
- */
-function uiowa_tracker_install() {
-
-}
-
-/**
- * Implements hook_uninstall().
- */
-function uiowa_tracker_uninstall() {
-
 }

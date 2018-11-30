@@ -65,9 +65,9 @@ class UIowaTrackerConfigForm extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $query = $this->connection->select('uiowa_tracker_paths', 'p')
-      ->fields('p', array('path'))
+      ->fields('p', ['path'])
       ->execute();
-    while($result = $query->fetchAssoc()) {
+    while ($result = $query->fetchAssoc()) {
       $pathlist[] = $result[path];
     }
     $uiowa_tracker_pathlist = implode("\r\n", $pathlist);
@@ -84,7 +84,7 @@ class UIowaTrackerConfigForm extends ConfigFormBase {
     $form['uiowa_tracker_clearlog_fieldset'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Operations'),
-      '#description' => $this->t('In order to clear all entries in the tracking log table, click the \'Clear tracking log\' button. This will remove ALL entries in the table, so use with caution.'),
+      '#description' => $this->t('In order to clear all entries in the tracking log table, click the "Clear tracking log" button. This will remove ALL entries in the table, so use with caution.'),
       '#open' => FALSE,
     ];
 
@@ -127,31 +127,32 @@ class UIowaTrackerConfigForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
-    $values = array(
+    $values = [
       'uiowa_tracker_pathlist' => $form_state->getValue('uiowa_tracker_pathlist'),
-    );
+    ];
 
     $pathlist = preg_split("/\r\n|\n|\r/", $values['uiowa_tracker_pathlist']);
 
-    // Enter the node id and alias of each path in the pathlist into the uiowa_tracker_paths table.
-    $query = $this->connection->insert('uiowa_tracker_paths')->fields(array('nid','path'));
+    // Enter the node id and alias of each path in the pathlist into the
+    // uiowa_tracker_paths table.
+    $query = $this->connection->insert('uiowa_tracker_paths')->fields(['nid', 'path']);
     foreach ($pathlist as $path) {
       $normal_path = \Drupal::service('path.alias_manager')->getPathByAlias($path);
-      $nid = str_ireplace("/node/",'',$normal_path);
+      $nid = str_ireplace("/node/", '', $normal_path);
 
       if (empty($path)) {
         continue;
       }
       elseif ($normal_path == $path) {
-        // If the node does not exist, the normal_path and path will be the same value.
-        drupal_set_message($this->t('The path \'' . $path . '\' has been ignored and removed because it does not exist.'), 'warning');
+        // If the node does not exist, normal_path and path will be same value.
+        drupal_set_message('The path \'' . $path . '\' has been ignored and removed because it does not exist.', 'warning');
         continue;
       }
 
-      $query->values(array(
+      $query->values([
         'nid' => $nid,
         'path' => $path,
-      ));
+      ]);
     }
     $query->execute();
 

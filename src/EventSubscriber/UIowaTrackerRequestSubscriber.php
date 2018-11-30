@@ -132,9 +132,9 @@ class UIowaTrackerRequestSubscriber implements EventSubscriberInterface {
   public function uiowaTrackerCheckNode(EntityInterface $node) {
 
     $query = $this->connection->select('uiowa_tracker_paths', 'p')
-      ->fields('p', array('path'))
+      ->fields('p', ['path'])
       ->execute();
-    while($result = $query->fetchAssoc()) {
+    while ($result = $query->fetchAssoc()) {
       $pathlist[] = $result[path];
     }
     $path = $node->toUrl()->toString();
