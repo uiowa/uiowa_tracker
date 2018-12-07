@@ -1,6 +1,6 @@
-name: University of Iowa Tracker
+name: UIowa Tracker
 description: Custom tracking module that logs node views by authenticated users for specified nodes.
-package: UIowa
+package: University of Iowa
 
 type: module
 core: 8.x
