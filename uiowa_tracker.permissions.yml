@@ -1,7 +1,7 @@
 administer uiowa tracker settings:
-  title: 'Administer University of Iowa Tracker'
+  title: 'Administer UIowa Tracker path settings'
   description: 'Configure the list of relative node paths that require tracking for the University of Iowa Tracker module.'
 
 access uiowa tracker data:
-  title: 'Access University of Iowa Tracker data'
+  title: 'Access UIowa Tracker data'
   description: 'Access the tracking data of node views for the University of Iowa Tracker module.'

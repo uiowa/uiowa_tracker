@@ -171,7 +171,7 @@ class UIowaTrackerConfigForm extends ConfigFormBase {
    */
   public function uiowaTrackerClearlogFormSubmit(array &$form, FormStateInterface $form_state) {
     $this->connection->delete('uiowa_tracker_log')->execute();
-    drupal_set_message($this->t('All entries in the University of Iowa tracker log have been cleared.'));
+    drupal_set_message($this->t('All entries in the tracker log have been cleared.'));
   }
 
 }

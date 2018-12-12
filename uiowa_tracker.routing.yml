@@ -10,6 +10,6 @@ uiowa_tracker.admin_uiowa_tracker:
   path: 'admin/config/uiowa/uiowa_tracker'
   defaults:
     _form:  '\Drupal\uiowa_tracker\Form\UIowaTrackerConfigForm'
-    _title: 'University of Iowa Tracker'
+    _title: 'UIowa Tracker settings'
   requirements:
     _permission: 'administer uiowa tracker settings'
