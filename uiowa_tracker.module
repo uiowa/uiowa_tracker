@@ -51,11 +51,11 @@ function uiowa_tracker_permission() {
   $perms = array();
 
   $perms['administer uiowa tracker settings'] = array(
-    'title' => t('Administer University of Iowa Tracker'),
+    'title' => t('Administer UIowa Tracker path settings'),
     'description' => t('Configure the list of relative node paths that require tracking for the University of Iowa Tracker module.'),
   );
   $perms['access uiowa tracker data'] = array(
-    'title' => t('Access University of Iowa Tracker data'),
+    'title' => t('Access UIowa Tracker data'),
     'description' => t('Access the tracking data of node views for the University of Iowa Tracker module.'),
   );
 
@@ -80,7 +80,7 @@ function uiowa_tracker_menu() {
   );
 
   $items['admin/config/uiowa/uiowa_tracker'] = array(
-    'title' => 'University of Iowa Tracker',
+    'title' => 'UIowa Tracker settings',
     'description' => 'Configuration for the University of Iowa Tracker module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('uiowa_tracker_pathlist_form'),
@@ -184,7 +184,7 @@ function uiowa_tracker_clearlog_form_validate($form, &$form_state) {
 function uiowa_tracker_clearlog_form_submit($form, &$form_state) {
   // Clear existing entries from the uiowa_tracker_log table.
   $query = db_delete('uiowa_tracker_log')->execute();
-  drupal_set_message(t('All entries in the University of Iowa tracker log have been cleared.'));
+  drupal_set_message(t('All entries in the tracker log have been cleared.'));
 }
 
 /**
@@ -208,7 +208,7 @@ function uiowa_tracker_user_delete($account) {
   db_delete('uiowa_tracker_log')
     ->condition('uid', $account->uid)
     ->execute();
-  drupal_set_message(t('The user has been removed from the University of Iowa tracker log.'));
+  drupal_set_message(t('The user has been removed from the tracker log.'));
 }
 
 /**
@@ -218,12 +218,12 @@ function uiowa_tracker_node_delete($node) {
   db_delete('uiowa_tracker_paths')
     ->condition('nid', $node->nid)
     ->execute();
-  drupal_set_message(t('The node has been removed from the University of Iowa list of tracked nodes.'));
+  drupal_set_message(t('The node has been removed from the list of tracked nodes.'));
 
   db_delete('uiowa_tracker_log')
     ->condition('nid', $node->nid)
     ->execute();
-  drupal_set_message(t('The node has been removed from the University of Iowa tracker log.'));
+  drupal_set_message(t('The node has been removed from the tracker log.'));
 }
 
 /**

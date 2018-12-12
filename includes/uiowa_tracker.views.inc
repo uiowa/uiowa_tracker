@@ -13,7 +13,7 @@ function uiowa_tracker_views_data() {
   $data['uiowa_tracker_log']['table']['group'] = t('UIowa Tracker');
   $data['uiowa_tracker_log']['table']['base'] = array(
     'field' => 'trackid',
-    'title' => t('University of Iowa Tracker Data'),
+    'title' => t('UIowa Tracker Data'),
     'help' => t('This table contains data about tracked node views by authenticated user.'),
     'weight' => -10,
   );
