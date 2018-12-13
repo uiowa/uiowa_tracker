@@ -63,9 +63,9 @@ display:
           default_row_class: true
           override: true
           sticky: false
-          caption: 'University of Iowa Tracker data for node views by authenticated users'
+          caption: 'Tracker data for node views by authenticated users'
           summary: 'Tracker Data'
-          description: 'University of Iowa Tracker data for node views by authenticated users, including user, page and timestamp.'
+          description: 'Tracker data for node views by authenticated users, including user, page and timestamp.'
           columns:
             nid: nid
             pagetitle: pagetitle
