@@ -2,7 +2,7 @@
 
 This module allows administrators to track specified page (node) visits by authenticated users. This custom module was requested as an alternative to other, more bloated, solutions.
 
-1. Navigate to the Admin Configuration screen found under Home » Administration » Configuration and select 'University of Iowa Tracker' found under the University of Iowa admin menu.
+1. Navigate to the Admin Configuration screen found under Home » Administration » Configuration and select 'UIowa Tracker settings' found under the University of Iowa admin menu.
 
 2. Enter the relative path(s) of any nodes that must be tracked and click 'Save configuration'. **NOTE: Do not include leading or trailing slashes.**
   For example:

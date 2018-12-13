@@ -103,8 +103,8 @@ function uiowa_tracker_views_default_views() {
       'empty_column' => 0,
     ),
   );
-  $handler->display->display_options['style_options']['caption'] = 'University of Iowa Tracker data for node views by authenticated users';
-  $handler->display->display_options['style_options']['summary'] = 'University of Iowa Tracker data for node views by authenticated users, including user, page and timestamp.';
+  $handler->display->display_options['style_options']['caption'] = 'Tracker data for node views by authenticated users';
+  $handler->display->display_options['style_options']['summary'] = 'Tracker data for node views by authenticated users, including user, page and timestamp.';
   /* Field: UIowa Tracker: Tracking id */
   $handler->display->display_options['fields']['trackid']['id'] = 'trackid';
   $handler->display->display_options['fields']['trackid']['table'] = 'uiowa_tracker_log';
